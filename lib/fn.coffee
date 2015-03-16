@@ -1,21 +1,20 @@
 lispeval = require './eval'
+{cons} = require './lists'
 
-class Proc
-  constructor: (@scope, @params, @body) ->
-  apply: (cells, scope) ->
-    args = (cells.map (i) -> lispeval(i, scope))
-    if @body instanceof Function
-      @body.apply(this, args)
+module.exports = 
+  create_expression_evaluator: (defining_scope, params, body) ->
+    if body instanceof Function
+      (cells, scope) ->
+        args = cells.map (i) -> lispeval i, scope
+        body.apply null, args
     else
-      inner = @scope.fork()
-      @params.forEach((name, i) -> inner.set(name, args[i]))
-      @body.map((e) -> lispeval(e, inner)).pop()
+      (cells, scope) ->
+        args = cells.map (i) -> lispeval i, scope
+        new_scope = {}
+        params.forEach (name, i) -> new_scope[name] = args[i]
+        inner = cons(new_scope, defining_scope)
+        body.map((i) -> lispeval i, inner).pop()
   
-class Syntax extends Proc
-  apply: (cells, scope) ->
-    return @body(cells, scope)
-    
+  create_special_form_evaluator: (defining_scope, params, body) ->
+    (cells, scope) -> body(cells, scope)
 
-module.exports =
-  Proc: Proc
-  Syntax: Syntax            

@@ -1,50 +1,28 @@
 parser = require './parser'
 lispeval = require './eval'
+{cons, car, cdr, nilp} = require './lists'
+{create_expression_evaluator, create_special_form_evaluator} = require './fn'
+lookup = require './lookup'
 
-{Proc, Syntax} = require './fn'
+scope = cons
+  '+': create_expression_evaluator scope, [], (a, b) -> a + b
+  '-': create_expression_evaluator scope, [], (a, b) -> a - b
+  '*': create_expression_evaluator scope, [], (a, b) -> a * b
+  '/': create_expression_evaluator scope, [], (a, b) -> a / b
+  '==': create_expression_evaluator scope, [], (a, b) -> a == b
 
-class Scope
-  constructor: (@parent) ->
-    @_symbols = {}
+  'define': create_special_form_evaluator scope, [], (list, scope) ->
+    current = (car scope)
+    current[list[0].value] = lispeval(list[1], scope)
 
-  lookup: (name) ->
-    if @_symbols[name]?
-      return @_symbols[name]
+  'lambda': create_special_form_evaluator scope, [], (list, scope) ->
+    params = list[0].value.map (n) -> return n.value
+    create_expression_evaluator(scope, params, list.slice(1))
+        
+  'if': create_special_form_evaluator scope, [], (list, scope) ->
+    lispeval(list[if lispeval(list[0], scope) then 1 else 2], scope)
 
-    if @parent
-      return @parent.lookup(name)
 
-    throw new Error "Unknown variable '#{name}'"
-
-  define: (name, body) ->
-    @set name, (new Proc(this, [], body))
-
-  syntax: (name, body) ->
-    @set name, (new Syntax(this, [], body))
-
-  fork: -> new Scope(@)
-
-  set: (name, value) ->
-    @_symbols[name] = value
-  
-class Toplevel extends Scope
-  constructor: (@parent = null) ->
-    super
-    @define '+', (a, b) -> a + b
-    @define '-', (a, b) -> a - b
-    @define '*', (a, b) -> a * b
-    @define '==', (a, b) -> a == b
-
-    @syntax 'define', (list, scope) ->
-      scope.set(list[0].value, lispeval(list[1], scope))
-
-    @syntax 'lambda', (list, scope) ->
-      params = list[0].value.map (n) -> return n.value
-      new Proc(scope, params, list.slice(1))
-
-    @syntax 'if', (list, scope) ->
-        lispeval(list[if lispeval(list[0], scope) then 1 else 2], scope)
-
-Scope.Toplevel = Toplevel
-
-module.exports = Scope            
+module.exports =
+  lookup: lookup
+  scope: scope

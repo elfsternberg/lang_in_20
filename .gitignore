@@ -4,4 +4,5 @@
 *.orig
 npm-debug.log
 node_modules/*
+lib/lisp_parser.js
 tmp/
