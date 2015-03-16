@@ -2,9 +2,11 @@
 
 ## Description
 
-A version of James Coglan's ["A Language In 20 Minutes"](https://www.youtube.com/watch?v=CqhL-BDT8lg for the whole 40 minute
-presentation).  It took me about three hours to make this work.  This
-version is tighter, using Coffeescript and PegJS instead of Javascript
+A version of James Coglan's
+["A Language In 20 Minutes"](https://www.youtube.com/watch?v=CqhL-BDT8lg)
+(hit the link for the whole 40 minute presentation).  It took me about
+three hours to make this work.  This version is tighter, using
+Coffeescript and PegJS instead of Javascript
 and whatever parser/lexer he described.  
 
 ## Purpose
