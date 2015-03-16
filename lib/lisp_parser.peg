@@ -1,0 +1,34 @@
+lisp
+    = cell*
+
+cell
+    = _* datum:datum _*
+    { return datum }
+
+datum
+    = list / boolean / number / symbol
+
+list
+    = "(" items:cell* ")"
+    { return { type: "list", value: items } }
+
+boolean
+    = b:("#t" / "#f")
+    { return { type: 'boolean', value: b } }
+
+delim
+    = paren / _
+
+number
+    = b:( [0-9]+ )
+    { return { type: 'number', value: b.join("") } }
+
+symbol
+    = b:(!delim c:. { return c })+
+    { return { type: 'symbol', value: b.join("") } }
+
+paren
+    = "(" / ")"
+
+_
+    = w:[ \t\n\r]+ 
