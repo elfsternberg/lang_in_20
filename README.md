@@ -1,4 +1,4 @@
-# James Coglan's "A Simple Scheme In 20 Minutes"
+# "A Simple Scheme In 20 Minutes"
 
 ## Description
 
