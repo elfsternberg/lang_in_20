@@ -7,7 +7,7 @@ A version of James Coglan's
 (hit the link for the whole 40 minute presentation).  It took me about
 three hours to make this work.  This version is tighter, using
 Coffeescript and PegJS instead of Javascript
-and whatever parser/lexer he described.  
+and whatever parser/lexer he described.
 
 ## Purpose
 
@@ -20,7 +20,8 @@ subjects intended to make me a "financial products" programmer.
 The Internet came along and gave me a much more interesting career, but
 now it's time to rectify the shortcoming of my education and study
 programming languages themselves.  This is a "My First Programming
-Lanugage."
+Language."  Just trying to
+[keep my skills up](http://www.elfsternberg.com/2015/03/15/paying-dues-studying-masters/).
 
 ## Usage
 
