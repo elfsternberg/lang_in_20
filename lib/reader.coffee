@@ -1,4 +1,4 @@
-{car, cdr, cons, nil, nilp, listp} = require './lists'
+{car, cdr, cons, nil, nilp, pairp, vectorToList} = require './lists'
 
 NEWLINES   = ["\n", "\r", "\x0B", "\x0C"]
 WHITESPACE = [" ", "\t"].concat(NEWLINES)
@@ -32,10 +32,7 @@ skipWS = (inStream) ->
 
 # (type, value, line, column) -> (node {type, value, line, column)}
 makeObj = (type, value, line, column) ->
-  'type': type
-  'value': value
-  'line': line
-  'column': column
+  vectorToList([type, value, line, column])  
 
 # msg -> (IO -> Node => Error)
 handleError = (message) ->

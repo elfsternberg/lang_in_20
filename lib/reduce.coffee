@@ -1,4 +1,4 @@
-{car, cdr, cons, listp, nilp, nil, list, listToString} = require './lists'
+{car, cdr, cons, pairp, nilp, nil, list, listToString} = require './lists'
 
 reduce = (lst, iteratee, memo, context) ->
   count = 0

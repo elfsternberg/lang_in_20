@@ -1,17 +1,16 @@
 lookup = require './lookup'
-{car, cdr} = require './lists'
+{car, cdr, cadr, caadr, cdadr} = require './lists'
 
 lispeval = (element, scope) ->
 
-  switch element.type
-    when 'number' then parseInt(element.value, 10)
-    when 'symbol'
-      lookup(scope, element.value)
+  switch (car element)
+    when 'number' then parseInt (cadr element), 10
+    when 'symbol' then lookup scope, (cadr element)
     when 'list'
-      proc = lispeval((car element.value), scope)
-      args = (cdr element.value)
+      proc = lispeval (caadr element), scope
+      args = cdadr element
       proc args, scope
-    else throw new Error ("Unrecognized type in parse: #{element.type}")
+    else throw new Error ("Unrecognized type in parse: #{(car element)}")
 
 module.exports = lispeval
 

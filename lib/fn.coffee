@@ -4,19 +4,33 @@ lispeval = require './eval'
 module.exports = 
   create_vm_expression_evaluator: (defining_scope, params, body) ->
     (cells, scope) ->
-      args = listToVector(cells).map (i) -> lispeval i, scope
+      args = (amap = (cells, accum) ->
+        return accum if nilp cells
+        amap((cdr cells), accum.concat(lispeval (car cells), scope)))(cells, [])
       body.apply null, args
 
   create_lisp_expression_evaluator: (defining_scope, params, body) ->
     (cells, scope) ->
+
+      # Takes the current scope, which has been passed in during the
+      # execution phase, and evaluate the contents of the parameters
+      # in the context in which this call is made (i.e. when the
+      # function is *called*, rather than defined.
+
       new_scope = (cmap = (cells, params, nscope) ->
         return nscope if (nilp cells) or (nilp params)
         nscope[(car params)] = lispeval (car cells), scope
         cmap((cdr cells), (cdr params), nscope))(cells, params, {})
-      inner = cons(new_scope, defining_scope)
+
+      # Execute and evaluate the body, creating an inner scope that
+      # consists of all the bound variables (the parameters) evaluated
+      # in the context of the function call, and all of free variables
+      # evaluated in the context of the defining scope.
+
+      inner_scope = cons(new_scope, defining_scope)
       (nval = (body, memo) ->
         return memo if nilp body
-        nval((cdr body), lispeval((car body), inner)))(body)
+        nval((cdr body), lispeval((car body), inner_scope)))(body)
 
   create_special_form_evaluator: (defining_scope, params, body) ->
     (cells, scope) -> body(cells, scope)

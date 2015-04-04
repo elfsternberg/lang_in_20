@@ -1,6 +1,8 @@
 vectorp = (a) -> toString.call(a) == '[object Array]'
 
-listp = (a) -> vectorp(a) and a.__list == true
+pairp = (a) -> vectorp(a) and a.__list == true
+
+listp = (a) -> (pairp a) and (pairp cdr a)
 
 recordp = (a) -> Object.prototype.toString.call(a) == '[object Object]'
 
@@ -16,7 +18,7 @@ car = (a) -> a[0]
 
 cdr = (a) -> a[1]
 
-nilp = (a) -> listp(a) and a.length == 0
+nilp = (a) -> pairp(a) and a.length == 0
 
 vectorToList = (v, p) ->
   p = if p? then p else 0
@@ -25,14 +27,17 @@ vectorToList = (v, p) ->
   # have to be intercepted first.  The use of duck-typing here is
   # frustrating, but I suppose the eventual runtime will be doing
   # something like this anyway for base types.
-  item = if listp(v[p]) then v[p] else if vectorp(v[p]) then vectorToList(v[p]) else v[p]
+  item = if pairp(v[p]) then v[p] else if vectorp(v[p]) then vectorToList(v[p]) else v[p]
   cons(item, vectorToList(v, p + 1))
 
-list = (v...) -> vectorToList v
+list = (v...) ->
+  ln = v.length;
+  (nl = (a) ->
+    cons(v[a], if (a < ln) then (nl(a + 1)) else nil))(0)
 
 listToVector = (l, v = []) ->
   return v if nilp l
-  v.push if listp (car l) then listToVector(car l) else (car l)
+  v.push if pairp (car l) then listToVector(car l) else (car l)
   listToVector (cdr l), v
 
 # This is the simplified version. It can't be used stock with reader,
@@ -41,7 +46,7 @@ listToVector = (l, v = []) ->
 
 listToString = (l) ->
   return "" if nilp l
-  if listp (car l)
+  if pairp (car l)
     "(" + (listToString(car l)).replace(/\ *$/, "") + ") " + listToString(cdr l)
   else
     p = if typeof (car l) == 'string' then '"' else ''
@@ -54,7 +59,7 @@ module.exports =
   cdr: cdr
   list: list
   nilp: nilp
-  listp: listp
+  pairp: pairp
   vectorp: vectorp
   recordp: recordp
   vectorToList: vectorToList
