@@ -31,8 +31,11 @@ skipWS = (inStream) ->
   while inStream.peek() in WHITESPACE then inStream.next()
 
 # (type, value, line, column) -> (node {type, value, line, column)}
-makeObj = (type, value, line, column) -> 
-  cons type, (cons value, (cons line, (cons column)))
+makeObj = (type, value, line, column) ->
+  'type': type
+  'value': value
+  'line': line
+  'column': column
 
 # msg -> (IO -> Node => Error)
 handleError = (message) ->

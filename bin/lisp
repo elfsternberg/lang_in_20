@@ -2,4 +2,4 @@ lisp = require '../lib/lisp'
 fs = require 'fs'
 {inspect} = require 'util'
 
-console.log inspect((lisp.run process.argv[2]), true, null, false)
+console.log lisp.run process.argv[2]

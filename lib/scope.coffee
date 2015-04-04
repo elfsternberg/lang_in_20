@@ -1,28 +1,32 @@
-parser = require './parser'
 lispeval = require './eval'
-{cons, car, cdr, nilp} = require './lists'
-{create_expression_evaluator, create_special_form_evaluator} = require './fn'
-lookup = require './lookup'
+{cons, car, cdr, nilp, nil} = require './lists'
+{create_lisp_expression_evaluator, create_vm_expression_evaluator, create_special_form_evaluator} = require './fn'
 
 scope = cons
-  '+': create_expression_evaluator scope, [], (a, b) -> a + b
-  '-': create_expression_evaluator scope, [], (a, b) -> a - b
-  '*': create_expression_evaluator scope, [], (a, b) -> a * b
-  '/': create_expression_evaluator scope, [], (a, b) -> a / b
-  '==': create_expression_evaluator scope, [], (a, b) -> a == b
+  '+': create_vm_expression_evaluator scope, [], (a, b) -> a + b
+  '-': create_vm_expression_evaluator scope, [], (a, b) -> a - b
+  '*': create_vm_expression_evaluator scope, [], (a, b) -> a * b
+  '/': create_vm_expression_evaluator scope, [], (a, b) -> a / b
+  '==': create_vm_expression_evaluator scope, [], (a, b) -> a == b
+  '#t': true
+  '#f': false
 
-  'define': create_special_form_evaluator scope, [], (list, scope) ->
+  'define': create_special_form_evaluator scope, [], (nodes, scope) ->
     current = (car scope)
-    current[list[0].value] = lispeval(list[1], scope)
+    current[(car nodes).value] = lispeval((car cdr nodes), scope)
 
-  'lambda': create_special_form_evaluator scope, [], (list, scope) ->
-    params = list[0].value.map (n) -> return n.value
-    create_expression_evaluator(scope, params, list.slice(1))
+  'lambda': create_special_form_evaluator scope, [], (nodes, scope) ->
+    param_nodes = (car nodes).value
+    reducer = (l) ->
+      if (nilp l) then nil else cons((car l).value, reducer(cdr l))
+    param_names = reducer(param_nodes)
+
+    create_lisp_expression_evaluator(scope, param_names, (cdr nodes))
         
-  'if': create_special_form_evaluator scope, [], (list, scope) ->
-    lispeval(list[if lispeval(list[0], scope) then 1 else 2], scope)
+  'if': create_special_form_evaluator scope, [], (nodes, scope) ->
+    if lispeval((car nodes), scope)
+      lispeval((car cdr nodes), scope)
+    else
+      lispeval((car cdr cdr nodes), scope)
 
-
-module.exports =
-  lookup: lookup
-  scope: scope
+module.exports = scope
