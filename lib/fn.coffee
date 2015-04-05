@@ -23,9 +23,15 @@ module.exports =
         cmap((cdr cells), (cdr params), nscope))(cells, params, {})
 
       # Execute and evaluate the body, creating an inner scope that
-      # consists of all the bound variables (the parameters) evaluated
-      # in the context of the function call, and all of free variables
-      # evaluated in the context of the defining scope.
+      # consists of: (1) the bound variables (the parameters)
+      # evaluated in the context of the function call, because that's
+      # where they were encountered (2) the free variables evaluated
+      # in the context of the defining scope, because that's where
+      # *they* were encountered.
+      #
+      # While this inspiration comes from Coglan, the clearest
+      # explanation is from Lisperator's 'make_lambda' paragraph at
+      # http://lisperator.net/pltut/eval1/
 
       inner_scope = cons(new_scope, defining_scope)
       (nval = (body, memo) ->

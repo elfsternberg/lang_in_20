@@ -5,6 +5,7 @@ lispeval = (element, scope) ->
 
   switch (car element)
     when 'number' then parseInt (cadr element), 10
+    when 'string' then (cadr element)
     when 'symbol' then lookup scope, (cadr element)
     when 'list'
       proc = lispeval (caadr element), scope
